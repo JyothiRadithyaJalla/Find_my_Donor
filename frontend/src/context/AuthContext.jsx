@@ -2,6 +2,8 @@ import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005';
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -24,7 +26,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post('http://localhost:5005/api/auth/login', { email, password });
+    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
     const { token: newToken, user: userData } = res.data;
     setToken(newToken);
     setUser(userData);
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
-    const res = await axios.post('http://localhost:5005/api/auth/register', userData);
+    const res = await axios.post(`${API_BASE_URL}/api/auth/register`, userData);
     const { token: newToken, user: newUser } = res.data;
     setToken(newToken);
     setUser(newUser);

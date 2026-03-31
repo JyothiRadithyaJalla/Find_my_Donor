@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005';
 import { Search, MapPin, Droplets, Phone, User, Activity } from 'lucide-react';
 
 const AREAS = [
@@ -23,7 +25,7 @@ function RecipientPanel() {
     setLoading(true);
     setHasSearched(true);
     try {
-      const response = await axios.get('http://localhost:5005/api/donors/search', {
+      const response = await axios.get(`${API_BASE_URL}/api/donors/search`, {
         params: searchParams,
         headers: { Authorization: `Bearer ${token}` }
       });

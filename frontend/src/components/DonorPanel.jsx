@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005';
 import { UserPlus, Droplets, MapPin, Phone, CheckCircle, User } from 'lucide-react';
 
 const AREAS = [
@@ -23,7 +25,7 @@ function DonorPanel() {
 
   const fetchMyDonors = async () => {
     try {
-      const res = await axios.get('http://localhost:5005/api/donors/me', {
+      const res = await axios.get(`${API_BASE_URL}/api/donors/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDonors(res.data);
@@ -39,7 +41,7 @@ function DonorPanel() {
     setLoading(true);
     setMessage(null);
     try {
-      await axios.post('http://localhost:5005/api/donors', formData, {
+      await axios.post(`${API_BASE_URL}/api/donors`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessage({ type: 'success', text: 'Donor added successfully!' });
@@ -54,7 +56,7 @@ function DonorPanel() {
 
   const toggleAvailability = async (id, current) => {
     try {
-      await axios.put(`http://localhost:5005/api/donors/${id}/status`, { isAvailable: !current }, {
+      await axios.put(`${API_BASE_URL}/api/donors/${id}/status`, { isAvailable: !current }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchMyDonors();
