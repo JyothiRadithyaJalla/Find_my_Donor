@@ -255,6 +255,7 @@ select {
   background-repeat: no-repeat;
   background-position: right 1rem center;
   padding-right: 2.5rem;
+  min-height: 48px; 
 }
 
 select option {
@@ -394,9 +395,16 @@ select option {
 }
 
 /* ==================== SELECTION ==================== */
-::selection {
-  background: rgba(22, 163, 74, 0.2);
-  color: #166534;
+/* Custom Scrollbar for dropdowns */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(22, 163, 74, 0.4);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 /* ==================== RESPONSIVE ==================== */
