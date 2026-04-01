@@ -1,8 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005';
 
 export const AuthContext = createContext();
 
@@ -17,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } else {
         logout();
       }
@@ -26,26 +24,26 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
+    const res = await API.post('/api/auth/login', { email, password });
     const { token: newToken, user: userData } = res.data;
     setToken(newToken);
     setUser(userData);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    API.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     
     if (userData.role === 'donor') navigate('/donor');
     else navigate('/recipient');
   };
 
   const register = async (userData) => {
-    const res = await axios.post(`${API_BASE_URL}/api/auth/register`, userData);
+    const res = await API.post('/api/auth/register', userData);
     const { token: newToken, user: newUser } = res.data;
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    API.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     
     if (newUser.role === 'donor') navigate('/donor');
     else navigate('/recipient');
@@ -56,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    delete axios.defaults.headers.common['Authorization'];
+    delete API.defaults.headers.common['Authorization'];
     navigate('/login');
   };
 
