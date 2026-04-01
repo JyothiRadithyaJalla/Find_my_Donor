@@ -1,13 +1,14 @@
-const express = require('express');
-const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
 
-// Register User
-router.post('/register', async (req, res) => {
+/**
+ * Register User
+ * @route POST /api/auth/register
+ */
+exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role, phoneNumber } = req.body;
     
@@ -33,10 +34,13 @@ router.post('/register', async (req, res) => {
     }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-});
+};
 
-// Login User
-router.post('/login', async (req, res) => {
+/**
+ * Login User
+ * @route POST /api/auth/login
+ */
+exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -53,6 +57,4 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-});
-
-module.exports = router;
+};

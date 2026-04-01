@@ -1,27 +1,12 @@
-const express = require('express');
-const router = express.Router();
 const BloodRequest = require('../models/BloodRequest');
 const Donor = require('../models/Donor');
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
-
-// Auth Middleware
-const auth = (req, res, next) => {
-  const token = req.header('Authorization');
-  if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
-  try {
-    const decoded = jwt.verify(token.replace('Bearer ', ''), JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
-  }
-};
-
-// Create a blood request (recipient only)
-router.post('/', auth, async (req, res) => {
+/**
+ * Recipient sends a new blood request to a donor
+ * @route POST /api/requests
+ */
+exports.createRequest = async (req, res) => {
   try {
     if (req.user.role !== 'recipient') {
       return res.status(403).json({ message: 'Only recipients can create requests' });
@@ -29,11 +14,9 @@ router.post('/', auth, async (req, res) => {
 
     const { donorId, hospitalName, patientName } = req.body;
 
-    // Get donor details
     const donor = await Donor.findById(donorId);
     if (!donor) return res.status(404).json({ message: 'Donor not found' });
 
-    // Get recipient user details
     const recipientUser = await User.findById(req.user.userId);
     if (!recipientUser) return res.status(404).json({ message: 'Recipient user not found' });
 
@@ -53,10 +36,13 @@ router.post('/', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error creating request', error: error.message });
   }
-});
+};
 
-// Get requests for the logged-in recipient
-router.get('/my-requests', auth, async (req, res) => {
+/**
+ * Retrieve all blood requests sent by the current recipient
+ * @route GET /api/requests/my-requests
+ */
+exports.getMyRequests = async (req, res) => {
   try {
     if (req.user.role !== 'recipient') {
       return res.status(403).json({ message: 'Not authorized' });
@@ -70,10 +56,13 @@ router.get('/my-requests', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error fetching requests', error: error.message });
   }
-});
+};
 
-// Get incoming requests for donor
-router.get('/donor-requests', auth, async (req, res) => {
+/**
+ * Retrieve all incoming blood requests for a donor
+ * @route GET /api/requests/donor-requests
+ */
+exports.getDonorRequests = async (req, res) => {
   try {
     if (req.user.role !== 'donor') {
       return res.status(403).json({ message: 'Not authorized' });
@@ -87,10 +76,13 @@ router.get('/donor-requests', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error fetching requests', error: error.message });
   }
-});
+};
 
-// Accept or reject a request (donor only)
-router.put('/:id/respond', auth, async (req, res) => {
+/**
+ * Donor responds (accept/reject) to a specific request
+ * @route PUT /api/requests/:id/respond
+ */
+exports.respondToRequest = async (req, res) => {
   try {
     if (req.user.role !== 'donor') {
       return res.status(403).json({ message: 'Only donors can respond to requests' });
@@ -113,10 +105,13 @@ router.put('/:id/respond', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error responding to request', error: error.message });
   }
-});
+};
 
-// Cancel a request (recipient only)
-router.delete('/:id', auth, async (req, res) => {
+/**
+ * Recipient cancels a pending blood request
+ * @route DELETE /api/requests/:id
+ */
+exports.cancelRequest = async (req, res) => {
   try {
     if (req.user.role !== 'recipient') {
       return res.status(403).json({ message: 'Only recipients can cancel requests' });
@@ -133,6 +128,4 @@ router.delete('/:id', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error cancelling request', error: error.message });
   }
-});
-
-module.exports = router;
+};

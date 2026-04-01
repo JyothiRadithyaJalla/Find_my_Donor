@@ -1,25 +1,10 @@
-const express = require('express');
-const router = express.Router();
 const Donor = require('../models/Donor');
-const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
-
-// Auth Middleware
-const auth = (req, res, next) => {
-  const token = req.header('Authorization');
-  if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
-  try {
-    const decoded = jwt.verify(token.replace('Bearer ', ''), JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
-  }
-};
-
-// Search donors by area and/or blood group
-router.get('/search', auth, async (req, res) => {
+/**
+ * Search donors based on location (area) and blood group
+ * @route GET /api/donors/search
+ */
+exports.searchDonors = async (req, res) => {
   try {
     const { area, bloodGroup } = req.query;
     let query = { isAvailable: true, city: { $regex: new RegExp('Hyderabad', 'i') } };
@@ -32,10 +17,13 @@ router.get('/search', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error fetching donors', error: error.message });
   }
-});
+};
 
-// Add a donor (donor role only)
-router.post('/', auth, async (req, res) => {
+/**
+ * Register a new donor entry
+ * @route POST /api/donors
+ */
+exports.addDonor = async (req, res) => {
   try {
     if (req.user.role !== 'donor') return res.status(403).json({ message: 'Not authorized' });
 
@@ -49,10 +37,13 @@ router.post('/', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error adding donor', error: error.message });
   }
-});
+};
 
-// Get logged-in user's donors
-router.get('/me', auth, async (req, res) => {
+/**
+ * Get all donor listings for the current logged-in user
+ * @route GET /api/donors/me
+ */
+exports.getMyDonors = async (req, res) => {
   try {
     if (req.user.role !== 'donor') return res.status(403).json({ message: 'Not authorized' });
 
@@ -61,10 +52,13 @@ router.get('/me', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error fetching your donors', error: error.message });
   }
-});
+};
 
-// Update specific donor availability
-router.put('/:id/status', auth, async (req, res) => {
+/**
+ * Update availability status for a specific donor listing
+ * @route PUT /api/donors/:id/status
+ */
+exports.updateDonorStatus = async (req, res) => {
   try {
     const { isAvailable } = req.body;
     if (req.user.role !== 'donor') return res.status(403).json({ message: 'Not authorized' });
@@ -80,6 +74,4 @@ router.put('/:id/status', auth, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error updating status', error: error.message });
   }
-});
-
-module.exports = router;
+};
