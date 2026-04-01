@@ -238,10 +238,109 @@ function RecipientPanel() {
               <div
                 key={donor._id}
                 className="glass animate-fade-in"
-                style={{ padding: '1.25rem', animationDelay: `${i * 0.08}s`, borderLeft: '3px solid var(--accent)', transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
+                style={{
+                  position: 'relative',
+                  zIndex: requestModal?._id === donor._id ? 100 : 1,
+                  padding: '1.25rem',
+                  animationDelay: `${i * 0.08}s`,
+                  borderLeft: '3px solid var(--accent)',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'var(--shadow-card)'; }}
               >
+                {/* Localized Request Overlay - Bottom Side */}
+                {requestModal?._id === donor._id && (
+                  <div className="animate-scale-in glass" style={{
+                    position: 'absolute',
+                    top: '90%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 'calc(100% + 80px)',
+                    minWidth: '340px',
+                    maxWidth: '460px',
+                    zIndex: 1000,
+                    background: 'white',
+                    padding: '2.5rem 2rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderTop: '6px solid var(--primary)',
+                    boxShadow: '0 40px 80px rgba(0,0,0,0.18)',
+                    borderRadius: '24px'
+                  }}>
+                    <div className="flex justify-between items-center mb-5">
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)' }}>Blood Request</h4>
+                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>Asking from {donor.name}</p>
+                      </div>
+                      <button 
+                        id="close-request-overlay"
+                        onClick={closeRequestModal} 
+                        style={{ background: 'rgba(0,0,0,0.04)', border: 'none', color: 'var(--text-muted)', padding: '0.4rem', borderRadius: '50%' }}
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    {requestMsg ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-center gap-3">
+                        {requestMsg.type === 'success' ? (
+                          <>
+                            <div style={{ background: 'rgba(22,163,74,0.1)', padding: '1rem', borderRadius: '50%', marginBottom: '0.5rem' }}>
+                              <CheckCircle size={40} color="var(--accent)" />
+                            </div>
+                            <h4 style={{ color: 'var(--accent-dark)', margin: 0 }}>Success!</h4>
+                            <p style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-secondary)', maxWidth: '280px' }}>{requestMsg.text}</p>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle size={40} color="var(--primary)" />
+                            <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)' }}>{requestMsg.text}</p>
+                            <button onClick={() => setRequestMsg(null)} className="btn-primary" style={{ padding: '0.6rem 1.2rem', borderRadius: '10px' }}>Try Again</button>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <form onSubmit={handleSendRequest} className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-4">
+                          <div>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.65rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                              <Hospital size={14} color="var(--accent)" /> Hospital Name
+                            </label>
+                            <input
+                              required
+                              placeholder="e.g. Apollo Hospital, Hyderabad"
+                              value={requestForm.hospitalName}
+                              onChange={e => setRequestForm(p => ({ ...p, hospitalName: e.target.value }))}
+                              style={{ padding: '0.85rem 1rem', fontSize: '0.95rem', marginBottom: 0 }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.65rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                              <User size={14} color="var(--accent)" /> Patient Name
+                            </label>
+                            <input
+                              required
+                              placeholder="Patient's full name"
+                              value={requestForm.patientName}
+                              onChange={e => setRequestForm(p => ({ ...p, patientName: e.target.value }))}
+                              style={{ padding: '0.85rem 1rem', fontSize: '0.95rem', marginBottom: 0 }}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          id="submit-request-overlay"
+                          type="submit"
+                          disabled={requestLoading}
+                          className="btn-primary flex items-center justify-center gap-2"
+                          style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px', marginTop: '0.5rem' }}
+                        >
+                          <Send size={18} /> {requestLoading ? 'Sending...' : 'Confirm Request'}
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                )}
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-2">
                     <div style={{ background: 'rgba(220,38,38,0.07)', padding: '0.6rem', borderRadius: '10px' }}>
@@ -396,102 +495,7 @@ function RecipientPanel() {
         </div>
       )}
 
-      {/* ========== REQUEST MODAL ========== */}
-      {requestModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 1000,
-          background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
-        }}>
-          <div
-            className="glass animate-fade-in"
-            style={{ width: '100%', maxWidth: '460px', padding: '2rem', borderTop: '4px solid var(--primary)', position: 'relative' }}
-          >
-            {/* Close */}
-            <button
-              id="close-request-modal"
-              onClick={closeRequestModal}
-              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', padding: '0.25rem' }}
-            >
-              <X size={20} />
-            </button>
-
-            {/* Donor Info Header */}
-            <div className="flex items-center gap-3" style={{ marginBottom: '1.4rem' }}>
-              <div style={{ background: 'rgba(220,38,38,0.07)', padding: '0.75rem', borderRadius: '12px' }}>
-                <Droplets size={22} color="var(--primary)" />
-              </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Request Blood from</h3>
-                <div className="flex items-center gap-2">
-                  <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.05rem' }}>{requestModal.name}</span>
-                  <span style={{
-                    background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
-                    color: 'white', padding: '0.1rem 0.4rem', borderRadius: '5px',
-                    fontWeight: 700, fontSize: '0.75rem'
-                  }}>{requestModal.bloodGroup}</span>
-                </div>
-              </div>
-            </div>
-
-            {requestMsg && (
-              <div style={{
-                padding: '0.7rem 1rem', borderRadius: '10px', marginBottom: '1rem',
-                background: requestMsg.type === 'success' ? 'rgba(22,163,74,0.07)' : 'rgba(220,38,38,0.07)',
-                border: `1px solid ${requestMsg.type === 'success' ? 'rgba(22,163,74,0.2)' : 'rgba(220,38,38,0.2)'}`,
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                color: requestMsg.type === 'success' ? 'var(--accent-dark)' : 'var(--primary)',
-                fontWeight: 500, fontSize: '0.88rem'
-              }}>
-                {requestMsg.type === 'success' ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                {requestMsg.text}
-              </div>
-            )}
-
-            <form onSubmit={handleSendRequest} className="flex flex-col gap-3">
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.72rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  <Hospital size={13} color="var(--accent)" /> Hospital Name
-                </label>
-                <input
-                  id="hospital-name-input"
-                  type="text"
-                  required
-                  placeholder="e.g. Apollo Hospital, Hyderabad"
-                  value={requestForm.hospitalName}
-                  onChange={e => setRequestForm(p => ({ ...p, hospitalName: e.target.value }))}
-                  style={{ padding: '0.75rem 1rem', marginBottom: 0 }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.72rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  <User size={13} color="var(--accent)" /> Patient Name
-                </label>
-                <input
-                  id="patient-name-input"
-                  type="text"
-                  required
-                  placeholder="Patient's full name"
-                  value={requestForm.patientName}
-                  onChange={e => setRequestForm(p => ({ ...p, patientName: e.target.value }))}
-                  style={{ padding: '0.75rem 1rem', marginBottom: 0 }}
-                />
-              </div>
-
-              <button
-                id="submit-request-btn"
-                type="submit"
-                disabled={requestLoading}
-                className="btn-primary flex items-center gap-2"
-                style={{ justifyContent: 'center', padding: '0.85rem', marginTop: '0.25rem', opacity: requestLoading ? 0.7 : 1 }}
-              >
-                <Send size={15} />
-                {requestLoading ? 'Sending...' : 'Send Request to Donor'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* ========== REQUEST MODAL MOVED INLINE ========== */}
     </div>
   );
 }
