@@ -115,4 +115,24 @@ router.put('/:id/respond', auth, async (req, res) => {
   }
 });
 
+// Cancel a request (recipient only)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'recipient') {
+      return res.status(403).json({ message: 'Only recipients can cancel requests' });
+    }
+
+    const request = await BloodRequest.findOneAndDelete({
+      _id: req.params.id,
+      recipientId: req.user.userId
+    });
+
+    if (!request) return res.status(404).json({ message: 'Request not found or not authorized' });
+
+    res.status(200).json({ message: 'Request cancelled successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error cancelling request', error: error.message });
+  }
+});
+
 module.exports = router;

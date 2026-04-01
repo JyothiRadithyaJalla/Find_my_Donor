@@ -433,17 +433,19 @@ function DonorPanel() {
                     </div>
                   )}
 
-                  {/* Action buttons (only for pending) */}
-                  {isPending && (
+                  {/* Action buttons */}
+                  {(isPending || req.status === 'accepted') && (
                     <div className="flex gap-3">
-                      <button
-                        id={`accept-btn-${req._id}`}
-                        onClick={() => handleRespond(req._id, 'accepted')}
-                        className="btn-accent flex items-center gap-2"
-                        style={{ flex: 1, justifyContent: 'center', padding: '0.65rem', fontSize: '0.88rem', borderRadius: '10px' }}
-                      >
-                        <CheckCircle size={15} /> Accept
-                      </button>
+                      {isPending && (
+                        <button
+                          id={`accept-btn-${req._id}`}
+                          onClick={() => handleRespond(req._id, 'accepted')}
+                          className="btn-accent flex items-center gap-2"
+                          style={{ flex: 1, justifyContent: 'center', padding: '0.65rem', fontSize: '0.88rem', borderRadius: '10px' }}
+                        >
+                          <CheckCircle size={15} /> Accept
+                        </button>
+                      )}
                       <button
                         id={`reject-btn-${req._id}`}
                         onClick={() => handleRespond(req._id, 'rejected')}
@@ -455,7 +457,7 @@ function DonorPanel() {
                           display: 'flex', alignItems: 'center', gap: '0.4rem'
                         }}
                       >
-                        <XCircle size={15} /> Decline
+                        <XCircle size={15} /> {req.status === 'accepted' ? 'Cancel / Decline' : 'Decline'}
                       </button>
                     </div>
                   )}
