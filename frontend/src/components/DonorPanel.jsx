@@ -159,7 +159,11 @@ function DonorPanel() {
      RENDER
   ========================================================= */
   return (
-    <div className="animate-fade-in py-4" style={{ maxWidth: '950px', margin: '0 auto' }}>
+    <div className="animate-fade-in bg-light-green" style={{ 
+      minHeight: '100vh',
+      padding: '2rem 1rem'
+    }}>
+      <div style={{ maxWidth: '950px', margin: '0 auto' }}>
 
       {/* ---- Tab Switcher ---- */}
       <div className="flex justify-between items-center" style={{ marginBottom: '1.5rem' }}>
@@ -490,6 +494,7 @@ function DonorPanel() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
