@@ -75,3 +75,40 @@ exports.updateDonorStatus = async (req, res) => {
     res.status(500).json({ message: 'Error updating status', error: error.message });
   }
 };
+/**
+ * Get nearest donors based on location (latitude and longitude)
+ * @route GET /api/donors/nearest
+ */
+exports.getNearestDonors = async (req, res) => {
+  try {
+    const { lat, lng, bloodGroup, maxDistance = 5000000 } = req.query; // Increase default radius to 5,000km
+    
+    if (!lat || !lng) {
+      return res.status(400).json({ message: 'Latitude and longitude are required' });
+    }
+
+    const longitude = parseFloat(lng);
+    const latitude = parseFloat(lat);
+
+    const pipeline = [
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [longitude, latitude] },
+          distanceField: "distance",
+          maxDistance: parseInt(maxDistance),
+          query: { isAvailable: true },
+          spherical: true
+        }
+      }
+    ];
+
+    if (bloodGroup) {
+      pipeline[0].$geoNear.query.bloodGroup = bloodGroup;
+    }
+
+    const donors = await Donor.aggregate(pipeline);
+    res.status(200).json(donors);
+  } catch (error) {
+    res.status(500).json({ message: 'Error finding nearest donors', error: error.message });
+  }
+};

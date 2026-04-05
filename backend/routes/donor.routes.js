@@ -7,6 +7,7 @@ const auth = require('../middleware/auth.middleware');
  * Routes for searching and managing donors
  */
 router.get('/search', auth, donorController.searchDonors);
+router.get('/nearest', auth, donorController.getNearestDonors); // New route
 router.post('/', auth, donorController.addDonor);
 router.get('/me', auth, donorController.getMyDonors);
 router.put('/:id/status', auth, donorController.updateDonorStatus);

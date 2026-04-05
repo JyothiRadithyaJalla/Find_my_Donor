@@ -7,12 +7,24 @@ import {
   Bell, ClipboardList, XCircle, Clock, Hospital
 } from 'lucide-react';
 
-const AREAS = [
-  "Ameerpet", "Banjara Hills", "Jubilee Hills", "Madhapur",
-  "Gachibowli", "Kukatpally", "Secunderabad", "Kondapur",
-  "Begumpet", "Hitec City", "Uppal", "Dilshuknagar",
-  "Miyapur", "LB Nagar", "Manikonda"
-];
+const AREA_COORDS = {
+  "Ameerpet": [78.4485, 17.4375],
+  "Banjara Hills": [78.4447, 17.4150],
+  "Jubilee Hills": [78.4111, 17.4299],
+  "Madhapur": [78.3831, 17.4483],
+  "Gachibowli": [78.3489, 17.4401],
+  "Kukatpally": [78.3996, 17.4834],
+  "Secunderabad": [78.4983, 17.4399],
+  "Kondapur": [78.3615, 17.4623],
+  "Begumpet": [78.4619, 17.4448],
+  "Hitec City": [78.3758, 17.4435],
+  "Uppal": [78.5581, 17.3984],
+  "Dilshuknagar": [78.5247, 17.3685],
+  "Miyapur": [78.3512, 17.4948],
+  "LB Nagar": [78.5485, 17.3457],
+  "Manikonda": [78.3820, 17.3995]
+};
+const AREAS = Object.keys(AREA_COORDS);
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const STATUS_CONFIG = {
@@ -102,8 +114,19 @@ function DonorPanel() {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+
+    // Get coordinates for the selected area
+    const coords = AREA_COORDS[formData.area];
+    const payload = {
+      ...formData,
+      location: {
+        type: 'Point',
+        coordinates: coords // [lng, lat]
+      }
+    };
+
     try {
-      await API.post('/api/donors', formData, {
+      await API.post('/api/donors', payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessage({ type: 'success', text: 'Donor added successfully!' });
@@ -196,9 +219,9 @@ function DonorPanel() {
       {/* ========== DONORS TAB ========== */}
       {tab === 'donors' && (
         <>
-          <div style={{ marginBottom: '0.3rem' }}>
-            <h2 style={{ marginBottom: '0.2rem', fontSize: '1.5rem' }}>Donor Dashboard</h2>
-            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.85rem' }}>Manage your registered blood donors</p>
+          <div style={{ marginBottom: '0.3rem', marginTop: '1rem' }}>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '2rem', fontWeight: 900 }}>Donor Dashboard</h2>
+            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.95rem' }}>Manage your registered blood donors and save lives in your community.</p>
           </div>
 
           {message && (

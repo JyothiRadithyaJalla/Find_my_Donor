@@ -16,26 +16,48 @@ function Home() {
   return (
     <div className="flex flex-col items-center justify-center animate-fade-in" style={{ paddingTop: '0.5rem', paddingBottom: '2.5rem' }}>
       
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-        padding: '0.3rem 0.8rem', borderRadius: '999px', marginBottom: '1rem',
-        background: 'rgba(22, 163, 74, 0.08)', border: '1px solid rgba(22, 163, 74, 0.2)',
-        color: 'var(--accent-dark)', fontSize: '0.8rem', fontWeight: 600
+      {/* Hero Header Section */}
+      <div className="hero-flex-container flex items-center justify-center w-full" style={{ 
+        maxWidth: '1200px', 
+        gap: '60px', 
+        marginBottom: '3rem',
+        marginTop: '1.5rem',
+        padding: '0 1rem'
       }}>
-        <Droplets size={12} /> Blood Donation Network — Hyderabad
+        {/* Left: Illustration */}
+        <div className="flex-1 hide-mobile" style={{ display: 'flex', justifyContent: 'center', maxWidth: '450px' }}>
+          <img 
+            src="/home_hero.png" 
+            alt="Blood Donor Network" 
+            style={{ width: '100%', filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.15))', animation: 'float 8s ease-in-out infinite' }} 
+          />
+        </div>
+
+        {/* Right: Intro Text */}
+        <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', maxWidth: '600px' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.3rem 0.8rem', borderRadius: '999px', marginBottom: '1.25rem',
+            background: 'rgba(22, 163, 74, 0.08)', border: '1px solid rgba(22, 163, 74, 0.2)',
+            color: 'var(--accent-dark)', fontSize: '0.8rem', fontWeight: 600
+          }}>
+            <Droplets size={12} /> Blood Donation Network — Hyderabad
+          </div>
+
+          <h1 style={{ textAlign: 'left', marginBottom: '1.25rem', fontSize: '3.8rem', fontWeight: 950, lineHeight: 1, letterSpacing: '-0.03em' }}>
+            Save Lives.<br />
+            <span style={{ color: 'var(--primary)', WebkitTextFillColor: 'initial' }}>Find Donors Instantly.</span>
+          </h1>
+
+          <p style={{
+            fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '520px',
+            marginBottom: '0', lineHeight: '1.6', textAlign: 'left', fontWeight: 500
+          }}>
+            Connect with verified blood donors in your neighborhood within minutes.
+            Every drop counts — register or search now.
+          </p>
+        </div>
       </div>
-
-      <h1 style={{ textAlign: 'center', marginBottom: '1rem', lineHeight: 1.1 }}>
-        Save Lives.<br />Find Donors Instantly.
-      </h1>
-
-      <p style={{
-        fontSize: '1rem', color: 'var(--text-muted)', maxWidth: '520px',
-        marginBottom: '1.75rem', lineHeight: '1.6', textAlign: 'center'
-      }}>
-        Connect with verified blood donors in your neighborhood within minutes.
-        Every drop counts — register or search now.
-      </p>
 
       <div className="flex gap-4 justify-center w-full" style={{ maxWidth: '800px', flexWrap: 'wrap' }}>
         
